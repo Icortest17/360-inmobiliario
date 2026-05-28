@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/tour3d-splat-worker
+  IMAGE_NAME: icortest17/tour3d-splat-worker
 
 jobs:
   build-and-push:
