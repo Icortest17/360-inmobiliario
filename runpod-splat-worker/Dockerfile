@@ -43,7 +43,7 @@ RUN python -m pip install --no-cache-dir \
     nerfstudio==${NERFSTUDIO_VER}
 
 RUN python -m pip uninstall -y gsplat \
-    && python -m pip install --no-cache-dir --no-build-isolation --no-binary gsplat gsplat==${GSPLAT_VER}
+    && MAX_JOBS=2 python -m pip install --no-cache-dir --no-build-isolation --no-binary gsplat gsplat==${GSPLAT_VER}
 
 # Verify the gsplat CUDA extension .so was compiled and exists on disk.
 # We cannot call CUDA kernels here (no GPU at build time), but we can
