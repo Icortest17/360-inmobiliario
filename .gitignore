@@ -1,0 +1,15 @@
+.env
+.env.local
+.env.*.local
+uploads/
+outputs/
+node_modules/
+
+# runpod-worker local dev deps (no van al repo)
+runpod-worker/.venv/
+runpod-worker/.deps/
+runpod-worker/__pycache__/
+runpod-splat-worker/__pycache__/
+
+# Docker build cache
+.docker/

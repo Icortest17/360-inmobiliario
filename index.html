@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>360 Inmobiliario | Tour 3D desde video</title>
+    <link rel="stylesheet" href="/src/styles.css?v=0.3-cloud-ui" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="release-banner">
+        <div>
+          <strong>Version cloud 0.3</strong>
+          <span>Video, IA, RunPod Flash, frames en Supabase y manifest de reconstruccion</span>
+        </div>
+        <span id="globalCloudBadge">Comprobando backend...</span>
+      </section>
+
+      <section class="workspace">
+        <aside class="control-panel">
+          <div class="brand-block">
+            <span class="product-mark">3D</span>
+            <div>
+              <h1>360 Cloud Tour</h1>
+              <p>Consola para convertir video inmobiliario en tour 3D hiperrealista.</p>
+            </div>
+          </div>
+
+          <section class="workflow-panel" aria-label="Flujo de produccion">
+            <article data-workflow-step="capture" class="active">
+              <span>01</span>
+              <strong>Captura</strong>
+              <small>Video listo</small>
+            </article>
+            <article data-workflow-step="local">
+              <span>02</span>
+              <strong>Preview</strong>
+              <small>Keyframes</small>
+            </article>
+            <article data-workflow-step="cloud">
+              <span>03</span>
+              <strong>Storage</strong>
+              <small>Supabase</small>
+            </article>
+            <article data-workflow-step="ai">
+              <span>04</span>
+              <strong>IA</strong>
+              <small>Vision</small>
+            </article>
+            <article data-workflow-step="gpu">
+              <span>05</span>
+              <strong>GPU</strong>
+              <small>Frames</small>
+            </article>
+            <article data-workflow-step="splat">
+              <span>06</span>
+              <strong>Splat</strong>
+              <small>Siguiente</small>
+            </article>
+          </section>
+
+          <div class="upload-zone" id="uploadZone" role="button" tabindex="0">
+            <input id="videoInput" type="file" accept="video/*" />
+            <span class="upload-icon">+</span>
+            <strong>Subir video de estancia</strong>
+            <small id="uploadStatus">MP4, MOV o WebM. Ideal: recorrido lento y buena luz.</small>
+            <button id="chooseVideoButton" class="secondary-button" type="button">Elegir archivo</button>
+          </div>
+
+          <section class="settings-panel">
+            <div class="setting-row">
+              <label for="frameTarget">Keyframes</label>
+              <output id="frameTargetValue">48</output>
+            </div>
+            <input id="frameTarget" type="range" min="10" max="120" step="2" value="48" />
+            <div class="preset-grid">
+              <button class="preset-button" data-frames="10" type="button">Borrador 10</button>
+              <button class="preset-button active" data-frames="48" type="button">Tour 48</button>
+              <button class="preset-button" data-frames="96" type="button">Denso 96</button>
+            </div>
+            <label class="select-label" for="analysisSize">Resolucion local</label>
+            <select id="analysisSize">
+              <option value="192">Ligera</option>
+              <option value="320" selected>Equilibrada</option>
+              <option value="480">Alta</option>
+            </select>
+          </section>
+
+          <div class="actions">
+            <button id="analyzeButton" class="primary-button" disabled type="button">
+              Crear preview 3D
+            </button>
+            <button id="resetButton" class="icon-button" title="Reiniciar escena" aria-label="Reiniciar escena" type="button">
+              Reset
+            </button>
+          </div>
+
+          <div class="secondary-actions">
+            <button id="demoButton" class="ghost-button" type="button">Probar demo</button>
+            <button id="exportButton" class="ghost-button" type="button" disabled>Exportar briefing</button>
+          </div>
+
+          <div class="node-actions">
+            <button id="prevNodeButton" class="ghost-button" type="button" onclick="window.tourMoveNode && window.tourMoveNode(-1)">Anterior</button>
+            <span id="nodeLabel">Nodo 0/0</span>
+            <button id="nextNodeButton" class="ghost-button" type="button" onclick="window.tourMoveNode && window.tourMoveNode(1)">Siguiente</button>
+          </div>
+
+          <section class="cloud-panel">
+            <div>
+              <h2>Pipeline cloud</h2>
+              <small id="cloudStatus">Comprobando Supabase...</small>
+            </div>
+            <ul class="cloud-checklist" id="cloudChecklist">
+              <li data-cloud-step="backend">Backend local</li>
+              <li data-cloud-step="buckets">Buckets Supabase</li>
+              <li data-cloud-step="schema">Tablas SQL</li>
+              <li data-cloud-step="upload">Subida firmada</li>
+            </ul>
+            <div class="cloud-actions">
+              <button id="bootstrapButton" class="ghost-button" type="button">Preparar buckets</button>
+              <button id="schemaCheckButton" class="ghost-button" type="button">Validar tablas</button>
+              <button id="cloudUploadButton" class="primary-button" type="button" disabled>Subir a Supabase</button>
+            </div>
+            <progress id="cloudProgress" max="100" value="0"></progress>
+          </section>
+
+          <section class="ai-panel">
+            <div>
+              <h2>IA hiperrealista</h2>
+              <small id="aiStatus">Crea primero un tour local para enviar keyframes a IA.</small>
+            </div>
+            <div class="ai-actions">
+              <button id="aiAnalyzeButton" class="primary-button" type="button" disabled>Analizar con IA</button>
+              <button id="gpuJobButton" class="ghost-button" type="button" disabled>Crear job GPU</button>
+            </div>
+            <div id="aiResult" class="ai-result">
+              <strong>Esperando analisis visual</strong>
+              <span>OpenAI evaluara estancia, materiales, calidad y pipeline recomendado.</span>
+            </div>
+          </section>
+
+          <section class="metric-grid" aria-label="Metricas del analisis">
+            <article>
+              <span id="framesMetric">0</span>
+              <small>frames</small>
+            </article>
+            <article>
+              <span id="coverageMetric">0%</span>
+              <small>cobertura</small>
+            </article>
+            <article>
+              <span id="confidenceMetric">0%</span>
+              <small>confianza</small>
+            </article>
+            <article>
+              <span id="nodesMetric">0</span>
+              <small>nodos</small>
+            </article>
+          </section>
+
+          <section class="pipeline-panel">
+            <h2>Preview local</h2>
+            <ol id="pipelineList">
+              <li data-step="load">Video cargado</li>
+              <li data-step="frames">Keyframes extraidos</li>
+              <li data-step="layout">Ruta y nodos estimados</li>
+              <li data-step="scene">Preview foto-real creado</li>
+            </ol>
+          </section>
+
+          <section class="prompt-panel">
+            <h2>Brief para IA</h2>
+            <textarea id="aiPrompt" spellcheck="false"></textarea>
+          </section>
+        </aside>
+
+        <section class="stage">
+          <div class="viewer-toolbar">
+            <div>
+              <strong id="sceneTitle">Vista 3D foto-real</strong>
+              <span id="sceneSubtitle">Esperando video</span>
+            </div>
+            <div class="segmented-control" aria-label="Modo de visualizacion">
+              <button class="active" data-mode="dollhouse" type="button">Foto 3D</button>
+              <button data-mode="walk" type="button">Paseo</button>
+              <button data-mode="plan" type="button">Plano</button>
+            </div>
+          </div>
+          <section class="gpu-console" aria-label="Resultado del worker GPU">
+            <article>
+              <small>Worker</small>
+              <strong id="gpuStage">Pendiente</strong>
+            </article>
+            <article>
+              <small>Frames cloud</small>
+              <strong id="gpuFrames">0</strong>
+            </article>
+            <article>
+              <small>Manifest</small>
+              <strong id="gpuManifest">Sin generar</strong>
+            </article>
+            <article>
+              <small>Siguiente fase</small>
+              <strong id="gpuNext">COLMAP + Splatfacto</strong>
+            </article>
+          </section>
+          <div class="canvas-wrap">
+            <canvas id="tourCanvas"></canvas>
+          </div>
+          <div class="frame-strip" id="frameStrip" aria-label="Frames extraidos"></div>
+        </section>
+      </section>
+    </main>
+
+    <video id="videoProbe" muted playsinline hidden></video>
+    <canvas id="analysisCanvas" hidden></canvas>
+    <script type="module" src="/src/main.js?v=0.3-cloud-ui"></script>
+  </body>
+</html>
